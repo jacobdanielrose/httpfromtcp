@@ -16,7 +16,6 @@ func NewHeaders() Headers {
 }
 
 func (h Headers) Parse(data []byte) (n int, done bool, err error) {
-	fmt.Printf("Headers.Parse received: %q\n", string(data))
 	idx := bytes.Index(data, []byte(crlf))
 
 	if idx == -1 {
@@ -63,4 +62,10 @@ func (h Headers) Parse(data []byte) (n int, done bool, err error) {
 
 func (h Headers) Set(key, value string) {
 	h[key] = value
+}
+
+func (h Headers) Get(key string) (string, bool) {
+	key = strings.ToLower(key)
+	v, ok := h[key]
+	return v, ok
 }
