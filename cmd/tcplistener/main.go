@@ -10,7 +10,6 @@ import (
 const port = ":42069"
 
 func main() {
-
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		panic(err)
@@ -45,5 +44,4 @@ func main() {
 
 		fmt.Println("Connection to ", conn.RemoteAddr(), "closed")
 	}
-
 }
