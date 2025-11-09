@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 
@@ -36,6 +37,10 @@ func main() {
 func handler(w *response.Writer, req *request.Request) {
 	if strings.HasPrefix(req.RequestLine.RequestTarget, "/httpbin/") {
 		proxyHandler(w, req)
+		return
+	}
+	if req.RequestLine.RequestTarget == "/video" {
+		handlerVideo(w, req)
 		return
 	}
 	if req.RequestLine.RequestTarget == "/yourproblem" {
@@ -104,6 +109,27 @@ func proxyHandler(w *response.Writer, req *request.Request) {
 		fmt.Println("Error writing trailers:", err)
 	}
 	fmt.Println("Wrote trailers")
+}
+
+func handlerVideo(w *response.Writer, req *request.Request) {
+	// baseDir := filepath.Dir(os.Args[0])
+	project_root := os.Getenv("SERVER_PATH")
+	filePath := filepath.Join(project_root, "assets/vim.mp4")
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		handler500(w, req)
+		return
+	}
+
+	w.WriteStatusLine(response.StatusOK)
+	h := response.GetDefaultHeaders(len(data))
+	h.Override("Content-Type", "video/mp4")
+	w.WriteHeaders(h)
+	_, err = w.WriteBody(data)
+	if err != nil {
+		fmt.Println("Error writing body:", err)
+	}
 }
 
 func handler400(w *response.Writer, _ *request.Request) {
